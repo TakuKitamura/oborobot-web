@@ -3,10 +3,11 @@ import fs from "fs";
 
 export default {
   server: {
-    host: "192.168.3.3",
+    host: "localhost",
+    port: "8000",
     https: {
-      key: fs.readFileSync("192.168.3.3-key.pem"),
-      cert: fs.readFileSync("192.168.3.3.pem")
+      key: fs.readFileSync("localhost-key.pem"),
+      cert: fs.readFileSync("localhost.pem")
     }
   },
 
@@ -17,8 +18,7 @@ export default {
   head: {
     titleTemplate: "%s - " + process.env.npm_package_name,
     title: process.env.npm_package_name || "",
-    meta: [
-      {
+    meta: [{
         charset: "utf-8"
       },
       {
@@ -31,13 +31,11 @@ export default {
         content: process.env.npm_package_description || ""
       }
     ],
-    link: [
-      {
-        rel: "icon",
-        type: "image/x-icon",
-        href: "/favicon.ico"
-      }
-    ]
+    link: [{
+      rel: "icon",
+      type: "image/x-icon",
+      href: "/favicon.ico"
+    }]
   },
   /*
    ** Customize the progress-bar color
@@ -68,7 +66,7 @@ export default {
   vuetify: {
     customVariables: ["~/assets/variables.scss"],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         dark: {
           primary: colors.blue.darken2,
