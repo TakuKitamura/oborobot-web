@@ -21,6 +21,7 @@ export const actions = {
     const askQuestionEndpoint =
       process.env.scheme +
       process.env.host +
+      ":" +
       process.env.apiPort +
       "/api/question";
 

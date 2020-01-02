@@ -91,3 +91,6 @@ sw.*
 
 # cert
 *.pem
+
+# config
+config.js

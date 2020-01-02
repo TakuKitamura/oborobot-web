@@ -1,18 +1,20 @@
 import colors from "vuetify/es5/util/colors";
 import fs from "fs";
 
+const envSet = require("./config.js");
+
 export default {
   env: {
-    scheme: "https://",
-    host: "oborobot.asuscomm.com",
-    apiPort: ":1072"
+    scheme: envSet.scheme,
+    host: envSet.apiHost,
+    apiPort: envSet.apiPort
   },
   server: {
-    host: "localhost",
-    port: "8000",
+    host: envSet.webHost,
+    port: envSet.webPort,
     https: {
-      key: fs.readFileSync("localhost-key.pem"),
-      cert: fs.readFileSync("localhost.pem")
+      key: fs.readFileSync(envSet.keyPath),
+      cert: fs.readFileSync(envSet.certPath)
     }
   },
 

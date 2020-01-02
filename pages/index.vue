@@ -2,7 +2,11 @@
   <v-container>
     <h1>Oborobot</h1>
     <div v-if="questionState == 0">
-      <v-text-field v-model="searchWords" label="検索ワード" />
+      <v-text-field
+        v-model="searchWords"
+        v-on:keyup="checkInput"
+        label="検索ワード"
+      />
       <v-btn color="primary" @click="askQuestion()">検索</v-btn>
     </div>
 
@@ -86,6 +90,12 @@ export default {
     this.setQuery();
   },
   methods: {
+    checkInput(input) {
+      if (input.keyCode === 13) {
+        // alert("Enter was pressed");
+        this.askQuestion();
+      }
+    },
     setQuery() {
       this.searchWords = this.$route.query.q || "";
     },
