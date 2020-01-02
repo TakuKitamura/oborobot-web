@@ -1,81 +1,119 @@
 <template>
-  <div>
-    <p>Hello! Vue</p>
-  </div>
+  <v-container>
+    <h1>Oborobot</h1>
+    <div v-if="questionState == 0">
+      <v-text-field v-model="searchWords" label="検索ワード" />
+      <v-btn color="primary" @click="askQuestion()">検索</v-btn>
+    </div>
 
-  <!-- <v-layout column justify-center align-center>
-    <v-flex xs12 sm8 md6>
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a href="https://vuetifyjs.com" target="_blank"> documentation </a>.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a href="https://chat.vuetifyjs.com/" target="_blank" title="chat">
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              title="contribute"
+    <div v-else-if="questionState == 1">
+      <h2>Question{{ questionNumber + 1 }}</h2>
+      <h3>
+        {{
+          questionData.data !== undefined
+            ? questionData.data[0].questions[questionNumber]
+            : ""
+        }}
+      </h3>
+      <v-row>
+        <v-col>
+          <v-btn-toggle v-model="selectButtonValue" tile group>
+            <v-btn @click="nextQuestion()" value="yes" id="select-button">
+              はい
+            </v-btn>
+            <v-btn @click="nextQuestion()" value="no" id="select-button">
+              いいえ
+            </v-btn>
+            <v-btn
+              @click="nextQuestion()"
+              value="may be yes"
+              id="select-button"
             >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a href="https://nuxtjs.org/" target="_blank">
-            Nuxt Documentation
-          </a>
-          <br />
-          <a href="https://github.com/nuxt/nuxt.js" target="_blank">
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire">
-            Continue
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-flex>
-  </v-layout> -->
+              たぶんそう
+            </v-btn>
+            <v-btn @click="nextQuestion()" value="may be no" id="select-button">
+              たぶんちがう
+            </v-btn>
+            <v-btn
+              @click="nextQuestion()"
+              value="don't know"
+              id="select-button"
+            >
+              わからない
+            </v-btn>
+          </v-btn-toggle>
+        </v-col>
+      </v-row>
+    </div>
+    <div v-else>
+      <h2>あなたが探している記事はこれかもしれません｡</h2>
+      <h3 v-if="questionData.data[0].length > 0">
+        タイトル: {{ questionData.data[0].title }}
+      </h3>
+      <h3 v-if="questionData.data[0].description > 0">
+        概要: {{ questionData.data[0].description }}
+      </h3>
+      <h3>
+        URL:
+        <a :href="questionData.data[0].url" target="_blank">{{
+          questionData.data[0].url
+        }}</a>
+      </h3>
+      <v-btn @click="questionRestart()">もう一度検索</v-btn>
+    </div>
+  </v-container>
 </template>
 
 <script>
-// import Logo from "~/components/Logo.vue";
-// import VuetifyLogo from "~/components/VuetifyLogo.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
-  components: {
-    // Logo,
-    // VuetifyLogo
+  components: {},
+  data() {
+    return {
+      questionState: 0,
+      questionNumber: 0,
+      selectButtonValue: null,
+      searchWords: null
+    };
+  },
+  computed: {
+    ...mapState({
+      questionData: state => state.questionStore.questionData
+    })
+  },
+  created() {
+    this.setQuery();
+  },
+  methods: {
+    setQuery() {
+      this.searchWords = this.$route.query.q || "";
+    },
+    nextQuestion() {
+      this.questionNumber += 1;
+      if (this.questionData.data[0].questions.length == this.questionNumber) {
+        this.questionState = 2;
+      }
+    },
+    askQuestion() {
+      if (this.searchWords.length > 0) {
+        console.log(111);
+        this.$store.dispatch("questionStore/askQuestion", {
+          seedValue: this.searchWords
+        });
+        this.questionState = 1;
+        console.log(555);
+      }
+    },
+    questionRestart() {
+      this.questionState = 0;
+      this.questionNumber = 0;
+      this.selectButtonValue = null;
+      this.searchWords = null;
+    },
+    ...mapActions({
+      // updateExcelType: "questionStore/updateExcelType"
+    })
   }
 };
 </script>
-
-

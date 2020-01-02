@@ -2,6 +2,11 @@ import colors from "vuetify/es5/util/colors";
 import fs from "fs";
 
 export default {
+  env: {
+    scheme: "https://",
+    host: "oborobot.asuscomm.com",
+    apiPort: ":1072"
+  },
   server: {
     host: "localhost",
     port: "8000",
@@ -16,8 +21,8 @@ export default {
    ** Headers of the page
    */
   head: {
-    titleTemplate: "%s - " + process.env.npm_package_name,
-    title: process.env.npm_package_name || "",
+    titleTemplate: "oborobot",
+    title: "oborobot" || "",
     meta: [{
         charset: "utf-8"
       },
