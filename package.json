@@ -5,7 +5,7 @@
   "author": "TakuKitamura",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=\"test\" nuxt",
+    "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.9.0",
-    "cross-env": "^6.0.3",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
