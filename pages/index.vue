@@ -10,10 +10,10 @@
 
         <v-menu v-if="questionState === 0" bottom left>
           <template v-slot:activator="{ on }">
-            <v-btn dark icon v-on="on">
-              <!-- <v-icon>mdi-dots-vertical</v-icon> -->
-              <v-btn text color="white"> lang: {{ lang }} &nbsp;&nbsp;</v-btn>
-            </v-btn>
+            <!-- <v-btn dark icon v-on="on"> -->
+            <!-- <v-icon>mdi-dots-vertical</v-icon> -->
+            <v-btn v-on="on" text color="white"> lang: {{ lang }} </v-btn>
+            <!-- </v-btn> -->
           </template>
 
           <v-list>
