@@ -108,11 +108,11 @@
                 : "The article you are looking for could be this."
             }}
           </h4>
-          <h3 v-if="questionData.data[0].length > 0">
+          <h3 v-if="questionData.data[0].title.length > 0">
             {{ lang === "ja" ? "タイトル" : "Title" }}:
             {{ questionData.data[0].title }}
           </h3>
-          <h3 v-if="questionData.data[0].description > 0">
+          <h3 v-if="questionData.data[0].description.length > 0">
             {{ lang === "ja" ? "概要" : "Description" }}:
             {{ questionData.data[0].description }}
           </h3>
