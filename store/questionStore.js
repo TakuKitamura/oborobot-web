@@ -15,6 +15,7 @@ export const mutations = {
 
 export const actions = {
   async askQuestion(action, {
+    lang,
     seedValue
   }) {
     console.log(222);
@@ -25,18 +26,21 @@ export const actions = {
       process.env.apiPort +
       "/api/question";
 
-    let askQuestionResponse = await axios.post(
-      askQuestionEndpoint, {
-        value: seedValue,
-        lang: "ja"
-      }, {
-        headers: {
-          "Content-Type": "application/json"
+    try {
+      let askQuestionResponse = await axios.post(
+        askQuestionEndpoint, {
+          value: seedValue,
+          lang: lang
+        }, {
+          headers: {
+            "Content-Type": "application/json"
+          }
         }
-      }
-    );
-    console.log(333);
-
-    action.commit(ASK_QUESTION, askQuestionResponse);
+      );
+      action.commit(ASK_QUESTION, askQuestionResponse);
+    } catch {
+      alert('学習がまだされていない場合の実装中')
+      location.href = '/'
+    }
   }
 };
