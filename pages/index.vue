@@ -41,7 +41,6 @@
 
         <div v-else-if="questionState === 1">
           <h4>Question{{ questionNumber + 1 }}</h4>
-          <br />
           <h2>
             {{
               questionData.data !== undefined
@@ -114,10 +113,9 @@
           </h3>
           <h5 v-if="questionData.data[0].description.length > 0">
             <!-- {{ lang === "ja" ? "概要" : "Description" }}: -->
-            {{ questionData.data[0].description }}
+            {{ questionData.data[0].description }}...
           </h5>
           <h3>
-            URL:
             <a :href="questionData.data[0].url" target="_blank">{{
               questionData.data[0].url
             }}</a>
