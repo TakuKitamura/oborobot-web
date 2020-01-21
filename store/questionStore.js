@@ -12,7 +12,7 @@ export const mutations = {
     state.questionData.push(questionData);
   },
   [ANSWER_QUESTION](state, questionData) {
-    // state.questionData = questionData;
+    state.questionData.push(questionData);
   }
 };
 
@@ -51,6 +51,7 @@ export const actions = {
   async answerQuestion(action, {
     userID,
     questionID,
+    questionValue,
     questionNumber,
     questionAnswerID,
     lang,
@@ -67,6 +68,7 @@ export const actions = {
         askQuestionEndpoint, {
           userID: userID,
           questionID: questionID,
+          questionValue: questionValue,
           questionNumber: questionNumber,
           questionAnswerID: questionAnswerID,
           lang: lang

@@ -40,12 +40,20 @@
         </div>
 
         <div v-else-if="questionState === 1">
-          <div v-if="questionData.length === 1">
+          <div v-if="questionData.length >= 1">
             <h4>
-              {{ `Question: ${questionData[0].data[0].questionNumber}` }}
+              {{
+                `Question: ${
+                  questionData[questionData.length - 1].data[0].questionNumber
+                }`
+              }}
             </h4>
             <h2>
-              {{ questionData[0].data[0]['question' +this.lang.toUpperCase()] }}
+              {{
+                questionData[questionData.length - 1].data[0][
+                  "question" + this.lang.toUpperCase()
+                ]
+              }}
             </h2>
             <!-- <h2>
               {{
@@ -222,8 +230,11 @@ export default {
       // alert(this.cookie);
       this.$store.dispatch("questionStore/answerQuestion", {
         userID: this.$cookies.get("ID"),
-        questionID: this.questionData[0].data[0].questionID, // this.questionData.data[questionData.data.length - 1].questionID,
-        questionNumber: this.nowQuestionNumber,
+        questionID: this.questionData[this.questionData.length - 1].data[0]
+          .questionID, // this.questionData.data[questionData.data.length - 1]
+        questionValue: this.searchWords,
+        questionNumber: this.questionData[this.questionData.length - 1].data[0]
+          .questionNumber,
         questionAnswerID: questionAnswerID,
         lang: this.lang
       });
