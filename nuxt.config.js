@@ -65,7 +65,11 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: [],
+  modules: [
+    ['cookie-universal-nuxt', {
+      parseJSON: false
+    }]
+  ],
   /*
    ** vuetify module configuration
    ** https://github.com/nuxt-community/vuetify-module

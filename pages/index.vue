@@ -8,7 +8,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-menu v-if="questionState === 0" bottom left>
+        <v-menu bottom left>
           <template v-slot:activator="{ on }">
             <!-- <v-btn dark icon v-on="on"> -->
             <!-- <v-icon>mdi-dots-vertical</v-icon> -->
@@ -40,20 +40,29 @@
         </div>
 
         <div v-else-if="questionState === 1">
-          <h4>Question{{ questionNumber + 1 }}</h4>
-          <h2>
-            {{
-              questionData.data !== undefined
-                ? questionData.data[0].questions[questionNumber]
-                : ""
-            }}
-          </h2>
+          <div v-if="questionData.length === 1">
+            <h4>
+              {{ `Question: ${questionData[0].data[0].questionNumber}` }}
+            </h4>
+            <h2>
+              {{ questionData[0].data[0]['question' +this.lang.toUpperCase()] }}
+            </h2>
+            <!-- <h2>
+              {{
+                questionData.data !== undefined
+                  ? questionData.data[questionData.data.length - 1][
+                      "question_" + lang
+                    ]
+                  : ""
+              }}
+            </h2> -->
+          </div>
           <v-row>
             <v-col>
               <v-btn-toggle v-model="selectButtonValue" tile group>
                 <v-btn
                   min-width="100px"
-                  @click="nextQuestion()"
+                  @click="nextQuestion(1)"
                   value="yes"
                   id="select-button"
                 >
@@ -61,7 +70,7 @@
                 </v-btn>
                 <v-btn
                   min-width="100px"
-                  @click="nextQuestion()"
+                  @click="nextQuestion(2)"
                   value="no"
                   id="select-button"
                 >
@@ -71,7 +80,7 @@
               <v-btn-toggle v-model="selectButtonValue" tile group>
                 <v-btn
                   min-width="100px"
-                  @click="nextQuestion()"
+                  @click="nextQuestion(3)"
                   value="maybe yes"
                   id="select-button"
                 >
@@ -79,7 +88,7 @@
                 </v-btn>
                 <v-btn
                   min-width="100px"
-                  @click="nextQuestion()"
+                  @click="nextQuestion(4)"
                   value="maybe no"
                   id="select-button"
                 >
@@ -89,7 +98,7 @@
               <v-btn-toggle v-model="selectButtonValue" tile group>
                 <v-btn
                   min-width="100px"
-                  @click="nextQuestion()"
+                  @click="nextQuestion(5)"
                   value="don't know"
                   id="select-button"
                 >
@@ -107,18 +116,29 @@
                 : "The article you are looking for could be this."
             }}
           </h4>
-          <h3 v-if="questionData.data[0].title.length > 0">
+          <h3
+            v-if="
+              questionData.data[questionData.data.length - 1].title.length > 0
+            "
+          >
             <!-- {{ lang === "ja" ? "タイトル" : "Title" }}: -->
-            [{{ questionData.data[0].title }}]
+            [{{ questionData.data[questionData.data.length - 1].title }}]
           </h3>
-          <h5 v-if="questionData.data[0].description.length > 0">
+          <h5
+            v-if="
+              questionData.data[questionData.data.length - 1].description
+                .length > 0
+            "
+          >
             <!-- {{ lang === "ja" ? "概要" : "Description" }}: -->
-            {{ questionData.data[0].description }}...
+            {{ questionData.data[questionData.data.length - 1].description }}...
           </h5>
           <h3>
-            <a :href="questionData.data[0].url" target="_blank">{{
-              questionData.data[0].url
-            }}</a>
+            <a
+              :href="questionData.data[questionData.data.length - 1].url"
+              target="_blank"
+              >{{ questionData.data[questionData.data.length - 1].url }}</a
+            >
           </h3>
           <v-btn @click="questionRestart()">
             {{ lang === "ja" ? "もう一度検索 " : "Search Again" }}
@@ -148,7 +168,7 @@ export default {
       lang: "ja",
       items: [{ title: "日本語" }, { title: "English" }],
       questionState: 0,
-      questionNumber: 0,
+      nowQuestionNumber: 0,
       selectButtonValue: null,
       searchWords: null
     };
@@ -160,8 +180,21 @@ export default {
   },
   created() {
     this.setQuery();
+    const id = this.uuidVersion3();
+    this.$cookies.set("ID", id, {
+      path: "/",
+      domain: "localhost"
+    });
   },
   methods: {
+    uuidVersion3(a) {
+      return a
+        ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)
+        : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(
+            /[018]/g,
+            this.uuidVersion3
+          );
+    },
     selectLang(item) {
       if (item.title === this.items[0].title) {
         this.lang = "ja";
@@ -178,16 +211,33 @@ export default {
     setQuery() {
       this.searchWords = this.$route.query.q || "";
     },
-    nextQuestion() {
-      this.questionNumber += 1;
-      if (this.questionData.data[0].questions.length === this.questionNumber) {
-        this.questionState = 2;
-      }
+    nextQuestion(questionAnswerID) {
+      this.answerQuestion(questionAnswerID);
+      this.nowQuestionNumber += 1;
+      // if (this.questionData.data[questionData.data.length - 1].questions.length === this.nowQuestionNumber) {
+      //   this.questionState = 2;
+      // }
     },
+    answerQuestion(questionAnswerID) {
+      // alert(this.cookie);
+      this.$store.dispatch("questionStore/answerQuestion", {
+        userID: this.$cookies.get("ID"),
+        questionID: this.questionData[0].data[0].questionID, // this.questionData.data[questionData.data.length - 1].questionID,
+        questionNumber: this.nowQuestionNumber,
+        questionAnswerID: questionAnswerID,
+        lang: this.lang
+      });
+    },
+    //     userID: userID,
+    // questionID: questionID,
+    // nowQuestionNumber: nowQuestionNumber,
+    // questionAnswerID: questionAnserID,
+    // lang: lang
     askQuestion() {
       if (this.searchWords.length > 0) {
         // console.log(111);
         this.$store.dispatch("questionStore/askQuestion", {
+          userID: this.$cookies.get("ID"),
           lang: this.lang,
           seedValue: this.searchWords
         });
@@ -197,7 +247,7 @@ export default {
     },
     questionRestart() {
       this.questionState = 0;
-      this.questionNumber = 0;
+      this.nowQuestionNumber = 0;
       this.selectButtonValue = null;
       this.searchWords = null;
     },
