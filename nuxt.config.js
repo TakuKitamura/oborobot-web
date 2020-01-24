@@ -7,7 +7,8 @@ export default {
   env: {
     scheme: envSet.scheme,
     host: envSet.apiHost,
-    apiPort: envSet.apiPort
+    apiPort: envSet.apiPort,
+    learnPort: envSet.learnPort
   },
   server: {
     host: envSet.webHost,

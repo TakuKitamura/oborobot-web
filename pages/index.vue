@@ -2,6 +2,9 @@
   <v-container>
     <!-- <v-row>
       <v-col> -->
+    <!-- {{ showRecommendation }} -->
+    <!-- {{ this.associationData }} -->
+    <v-row justify="center" align="center"> </v-row>
     <v-card class="mx-auto">
       <v-card-title class="blue white--text">
         <span class="headline">Oborobot</span>
@@ -12,6 +15,7 @@
           <template v-slot:activator="{ on }">
             <!-- <v-btn dark icon v-on="on"> -->
             <!-- <v-icon>mdi-dots-vertical</v-icon> -->
+
             <v-btn v-on="on" text color="white"> lang: {{ lang }} </v-btn>
             <!-- </v-btn> -->
           </template>
@@ -28,18 +32,64 @@
         </v-menu>
       </v-card-title>
       <v-card-text>
-        <div v-if="questionState === 0">
+        <div v-if="isSearching === false">
           <v-text-field
             v-model="searchWords"
-            v-on:keyup="checkInput"
-            :label="lang === 'ja' ? '検索ワード' : 'SearchWords'"
+            v-on:keyup.13="search()"
+            :label="lang === 'ja' ? '連想ワード' : 'Association Words'"
           />
-          <v-btn color="primary" @click="askQuestion()">{{
-            lang === "ja" ? "検索" : "Search"
+          <v-btn color="primary" @click="search()">{{
+            lang === "ja" ? "連想" : "Association"
           }}</v-btn>
         </div>
 
-        <div v-else-if="questionState === 1">
+        <div v-else style="margin-top: 1em">
+          <div>
+            <v-btn href="/">はじめの画面に戻る</v-btn>
+          </div>
+          <div style="margin-top: 1em">
+            <h3>
+              {{
+                this.searchWords !== ""
+                  ? lang === "ja"
+                    ? `｢${this.searchWords}｣ から何を連想しますか?`
+                    : `What do you associate with "${this.searchWords}" ?`
+                  : ""
+              }}
+            </h3>
+          </div>
+          <v-card class="d-flex pa-2" style="margin-top: 1em" outlined tile>
+            <!-- <v-chip large @click="chipClick(1)">あいうえお</v-chip> -->
+
+            <v-chip-group column active-class="primary--text">
+              <div :key="index" v-for="(item, index) in showChoice.slice(0,30)">
+                <v-chip
+                  @click="associationSelect(item.id, item.name)"
+                  :key="item.name"
+                >
+                  {{ item.name }}
+                </v-chip>
+              </div>
+            </v-chip-group>
+          </v-card>
+          <div :key="index" v-for="(item, index) in showRecommendation">
+            <v-card link class="mx-auto" style="margin-top: 1em" outlined>
+              <v-list-item three-line>
+                <v-list-item-content>
+                  <div class="overline mb-4">{{ item.url }}</div>
+                  <v-list-item-title class="headline mb-1">
+                    <a>{{ item.title }}</a>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ item.description }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-card>
+          </div>
+        </div>
+
+        <!-- <div v-else-if="questionState === 1">
           <div v-if="questionData.length >= 1">
             <h4>
               {{
@@ -54,8 +104,8 @@
                   "question" + this.lang.toUpperCase()
                 ]
               }}
-            </h2>
-            <!-- <h2>
+            </h2> -->
+        <!-- <h2>
               {{
                 questionData.data !== undefined
                   ? questionData.data[questionData.data.length - 1][
@@ -64,7 +114,7 @@
                   : ""
               }}
             </h2> -->
-          </div>
+        <!-- </div>
           <v-row>
             <v-col>
               <v-btn-toggle v-model="selectButtonValue" tile group>
@@ -130,16 +180,16 @@
             "
           >
             <!-- {{ lang === "ja" ? "タイトル" : "Title" }}: -->
-            [{{ questionData.data[questionData.data.length - 1].title }}]
+        <!-- [{{ questionData.data[questionData.data.length - 1].title }}]
           </h3>
           <h5
             v-if="
               questionData.data[questionData.data.length - 1].description
                 .length > 0
             "
-          >
-            <!-- {{ lang === "ja" ? "概要" : "Description" }}: -->
-            {{ questionData.data[questionData.data.length - 1].description }}...
+          > -->
+        <!-- {{ lang === "ja" ? "概要" : "Description" }}: -->
+        <!-- {{ questionData.data[questionData.data.length - 1].description }}...
           </h5>
           <h3>
             <a
@@ -151,7 +201,7 @@
           <v-btn @click="questionRestart()">
             {{ lang === "ja" ? "もう一度検索 " : "Search Again" }}
           </v-btn>
-        </div>
+        </div> -->
       </v-card-text>
     </v-card>
     <!-- </v-col>
@@ -178,12 +228,36 @@ export default {
       questionState: 0,
       nowQuestionNumber: 0,
       selectButtonValue: null,
-      searchWords: null
+      searchWords: null,
+      isSearching: false
     };
   },
   computed: {
+    showChoice() {
+      const data = this.associationData["data"];
+      if (data === undefined) {
+        return;
+      }
+      const choice = data["choice"];
+      if (choice === undefined) {
+        return;
+      }
+      return choice;
+    },
+    showRecommendation() {
+      const data = this.associationData["data"];
+      if (data === undefined) {
+        return;
+      }
+      const recommendation = data["recommendation"];
+
+      if (recommendation === undefined) {
+        return;
+      }
+      return recommendation;
+    },
     ...mapState({
-      questionData: state => state.questionStore.questionData
+      associationData: state => state.associateStore.associationData
     })
   },
   created() {
@@ -195,6 +269,13 @@ export default {
     });
   },
   methods: {
+    search() {
+      this.isSearching = true;
+      this.associationStart();
+    },
+    chipClick(id) {
+      console.log(id);
+    },
     uuidVersion3(a) {
       return a
         ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)
@@ -210,12 +291,6 @@ export default {
         this.lang = "en";
       }
     },
-    checkInput(input) {
-      if (input.keyCode === 13) {
-        // alert("Enter was pressed");
-        this.askQuestion();
-      }
-    },
     setQuery() {
       this.searchWords = this.$route.query.q || "";
     },
@@ -226,33 +301,29 @@ export default {
       //   this.questionState = 2;
       // }
     },
-    answerQuestion(questionAnswerID) {
+    associationSelect(choiceID, name) {
       // alert(this.cookie);
-      this.$store.dispatch("questionStore/answerQuestion", {
+      this.$store.dispatch("associateStore/associationSelect", {
         userID: this.$cookies.get("ID"),
-        questionID: this.questionData[this.questionData.length - 1].data[0]
-          .questionID, // this.questionData.data[questionData.data.length - 1]
-        questionValue: this.searchWords,
-        questionNumber: this.questionData[this.questionData.length - 1].data[0]
-          .questionNumber,
-        questionAnswerID: questionAnswerID,
-        lang: this.lang
+        lang: this.lang,
+        choiceID: choiceID
       });
+      this.searchWords = name;
     },
     //     userID: userID,
     // questionID: questionID,
     // nowQuestionNumber: nowQuestionNumber,
     // questionAnswerID: questionAnserID,
     // lang: lang
-    askQuestion() {
+    associationStart() {
       if (this.searchWords.length > 0) {
         // console.log(111);
-        this.$store.dispatch("questionStore/askQuestion", {
+        this.$store.dispatch("associateStore/associationStart", {
           userID: this.$cookies.get("ID"),
           lang: this.lang,
-          seedValue: this.searchWords
+          searchValue: this.searchWords
         });
-        this.questionState = 1;
+        // this.questionState = 1;
         // console.log(555);
       }
     },
@@ -263,7 +334,7 @@ export default {
       this.searchWords = null;
     },
     ...mapActions({
-      // updateExcelType: "questionStore/updateExcelType"
+      // updateExcelType: "associateStore/updateExcelType"
     })
   }
 };
