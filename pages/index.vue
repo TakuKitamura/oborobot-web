@@ -48,7 +48,7 @@
             <v-btn href="/">はじめの画面に戻る</v-btn>
           </div>
           <div style="margin-top: 1em">
-            <h3>
+            <h1>
               {{
                 this.searchWords !== ""
                   ? lang === "ja"
@@ -56,24 +56,24 @@
                     : `What do you associate with "${this.searchWords}" ?`
                   : ""
               }}
-            </h3>
+            </h1>
           </div>
           <v-card class="d-flex pa-2" style="margin-top: 1em" outlined tile>
             <!-- <v-chip large @click="chipClick(1)">あいうえお</v-chip> -->
 
             <v-chip-group column active-class="primary--text">
-              <div :key="index" v-for="(item, index) in showChoice.slice(0,30)">
+              <div :key="index" v-for="(item, index) in showChoice">
                 <v-chip
                   @click="associationSelect(item.id, item.name)"
-                  :key="item.name"
+                  :key="item.name" x-large
                 >
-                  {{ item.name }}
+                  <h1>{{ item.name }}</h1>
                 </v-chip>
               </div>
             </v-chip-group>
           </v-card>
           <div :key="index" v-for="(item, index) in showRecommendation">
-            <v-card link class="mx-auto" style="margin-top: 1em" outlined>
+            <v-card link class="mx-auto" target="_blank" :href="item.url" style="margin-top: 1em" outlined>
               <v-list-item three-line>
                 <v-list-item-content>
                   <div class="overline mb-4">{{ item.url }}</div>
@@ -238,9 +238,24 @@ export default {
       if (data === undefined) {
         return;
       }
-      const choice = data["choice"];
+      let choice = data["choice"];
       if (choice === undefined) {
         return;
+      }
+      // console.log(choice.sort(function() { Math.random() - .5 }))
+
+      const shuffle = ([...array]) => {
+        for (let i = array.length - 1; i >= 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      choice = shuffle(choice)
+
+      if (choice.length >= 20) {
+        choice = choice.slice(0, 20)
       }
       return choice;
     },
@@ -249,10 +264,14 @@ export default {
       if (data === undefined) {
         return;
       }
-      const recommendation = data["recommendation"];
+      let recommendation = data["recommendation"];
 
       if (recommendation === undefined) {
         return;
+      }
+
+      if (recommendation.length >= 5) {
+        recommendation = recommendation.slice(0, 5)
       }
       return recommendation;
     },
