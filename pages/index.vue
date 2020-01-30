@@ -11,12 +11,96 @@
 
         <v-spacer></v-spacer>
 
+        <v-spacer></v-spacer>
+
         <v-menu bottom left>
           <template v-slot:activator="{ on }">
             <!-- <v-btn dark icon v-on="on"> -->
             <!-- <v-icon>mdi-dots-vertical</v-icon> -->
 
+
+            
+
             <v-btn v-on="on" text color="white"> lang: {{ lang }} </v-btn>
+
+                <v-dialog
+      v-model="dialog"
+      width="100%"
+    >
+      <template v-slot:activator="{ on }">
+        <v-btn
+          text color="white"
+          v-on="on"
+        >
+          {{
+            lang === "ja"
+                ? "記事を提供する"
+                : "Providing articles"
+          }}
+        </v-btn>
+      </template>
+
+      <v-card>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          {{
+            lang === "ja"
+                ? "記事を提供する"
+                : "Providing articles"
+          }}
+        </v-card-title>
+        <div>
+        <v-card-text>
+          <h2>
+          
+          {{
+            lang === "ja"
+                ? "URL（http：//またはhttps：//を含む）を記述し、送信するとそのページをOborobotに登録します"
+                : "Enter the URL (including http: // or https: //) and register it with Oborobot when you send it"
+          }}
+          </h2>
+        </v-card-text>
+        <v-col >
+          <v-textarea
+            name="input-7-1"
+            label="URL"
+            v-model="urlsInput"></v-textarea>
+          <code v-if="showUrlsInputMessage.length !== 0" style="color:black; width:100%; font-size:1.5em">{{showUrlsInputMessage}}</code>
+      </v-col>
+
+      </div>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="sendURLs(); dialog = false"
+          >
+          {{
+            lang === "ja"
+                ? "送信"
+                : "Send"
+          }}
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
+          {{
+            lang === "ja"
+                ? "閉じる"
+                : "Close"
+          }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
             <!-- </v-btn> -->
           </template>
 
@@ -45,7 +129,15 @@
 
         <div v-else style="margin-top: 1em">
           <div>
-            <v-btn href="/">はじめの画面に戻る</v-btn>
+            <v-btn href="/">
+            
+          {{
+            lang === "ja"
+                ? "はじめの画面に戻る"
+                : "Return to the first screen"
+          }}
+          
+          </v-btn>
           </div>
           <div style="margin-top: 1em">
             <h1>
@@ -229,10 +321,29 @@ export default {
       nowQuestionNumber: 0,
       selectButtonValue: null,
       searchWords: null,
-      isSearching: false
+      isSearching: false,
+      dialog: false,
+      urlsInput: '',
+      urlsInputMessage: '',
     };
   },
   computed: {
+    showUrlsInputMessage() {
+      let urlsArray = this.getURLList(this.urlsInput)
+      urlsArray = Array.from(new Set(urlsArray))
+      if (urlsArray.length === 0) {
+        return ""
+      }
+      let showMessage = '以下のURLを登録します｡\n'
+      if (this.lang === 'en') {
+        showMessage = 'Register the following URL.\n'
+      }
+      for(let i = 0; i < urlsArray.length; i++) {
+        const url = urlsArray[i]
+        showMessage += String(i+1) + ". " + url + "\n"
+      }
+      return showMessage
+    },
     showChoice() {
       const data = this.associationData["data"];
       if (data === undefined) {
@@ -294,6 +405,12 @@ export default {
     },
     chipClick(id) {
       console.log(id);
+    },
+    getURLList(str){
+      var pat=/(https?:\/\/[\x21-\x7e]+)/g;
+      var list=str.match(pat);
+      if(!list)return [];
+      return list;
     },
     uuidVersion3(a) {
       return a
